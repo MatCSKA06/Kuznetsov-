@@ -16,3 +16,4 @@ finally:
 x. stop( )
 GPIO. output (27, 0)
 GPIO. cleanup()
+z
