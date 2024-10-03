@@ -1,0 +1,35 @@
+import RPi.GPIO as rp
+import time 
+global dac
+global troyka
+global comp
+dac =[8, 11, 7, 1, 0, 5, 12, 6]
+comp = 14
+troyka = 13
+rp.setmode(rp.BCM)
+rp.setup(dac, rp.OUT)
+rp.setup(troyka, rp.OUT, initial=1)
+rp.setup(comp, rp.IN)
+def decimal2binary(value):
+    return [int(bit) for bit in bin (value)[2:].zfill(8)]
+def adc():
+    value = 0
+    for i in range(7, -1, -1): 
+        bit_value = 1 << i
+        value += bit_value
+        signal = decimal2binary(value)
+        rp.output(dac, signal)
+        time.sleep(0.001)
+        if rp.input(comp) == 1:
+            value -= bit_value
+    return value
+    
+try:
+    while True: 
+        value= adc()
+        voltage= value/256 * 3.3
+        print(f"digital value: {value}, voltage: {voltage:.2f} V")
+        time.sleep(0.5)
+finally:
+    rp.output(dac, 0)
+    rp.cleanup()
